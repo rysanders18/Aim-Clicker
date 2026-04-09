@@ -59,7 +59,7 @@ Assets/
 ## Team Members
 
 - Yan Tong  
-- (Add teammates here)
+- (Add names below while you edit it)
 
 ---
 
