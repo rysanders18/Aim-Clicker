@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 
     public int money = 0;
     public int passiveIncome = 0;
+    public int shotReward = 1;
 
     public TextMeshProUGUI moneyText;
     public TextMeshProUGUI passiveIncomeText;
@@ -35,6 +36,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void AddMoney(int amount)
+    {
+        money += amount;
+        UpdateMoneyUI();
+    }
+
     public bool SpendMoney(int amount)
     {
         if (money >= amount)
@@ -47,16 +54,15 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    public void AddMoney(int amount)
-    {
-        money += amount;
-        UpdateMoneyUI();
-    }
-
     public void AddPassiveIncome(int amount)
     {
         passiveIncome += amount;
         UpdatePassiveIncomeUI();
+    }
+
+    public void IncreaseShotReward(int amount)
+    {
+        shotReward += amount;
     }
 
     private void UpdateMoneyUI()
