@@ -14,6 +14,11 @@ public class GameManager : MonoBehaviour
 
     private float passiveTimer = 0f;
 
+    private bool goldenBuffActive = false;
+    private float goldenBuffTimer = 0f;
+    public float goldenBuffDuration = 7f;
+    public int goldenBuffMultiplier = 7;
+
     private void Awake()
     {
         Instance = this;
@@ -32,7 +37,27 @@ public class GameManager : MonoBehaviour
         if (passiveTimer >= 1f)
         {
             passiveTimer = 0f;
-            AddMoney(passiveIncome);
+
+            int incomeToAdd = passiveIncome;
+
+            if (goldenBuffActive)
+            {
+                incomeToAdd *= goldenBuffMultiplier;
+            }
+
+            AddMoney(incomeToAdd);
+        }
+
+        if (goldenBuffActive)
+        {
+            goldenBuffTimer -= Time.deltaTime;
+
+            if (goldenBuffTimer <= 0f)
+            {
+                goldenBuffActive = false;
+                goldenBuffTimer = 0f;
+                UpdatePassiveIncomeUI();
+            }
         }
     }
 
@@ -65,6 +90,14 @@ public class GameManager : MonoBehaviour
         shotReward += amount;
     }
 
+    public void ActivateGoldenBuff()
+    {
+        goldenBuffActive = true;
+        goldenBuffTimer = goldenBuffDuration;
+        UpdatePassiveIncomeUI();
+        Debug.Log("Golden buff activated!");
+    }
+
     private void UpdateMoneyUI()
     {
         if (moneyText != null)
@@ -77,7 +110,14 @@ public class GameManager : MonoBehaviour
     {
         if (passiveIncomeText != null)
         {
-            passiveIncomeText.text = "Passive Income: " + passiveIncome + "/s";
+            if (goldenBuffActive)
+            {
+                passiveIncomeText.text = "Passive Income: " + passiveIncome + "/s  (x" + goldenBuffMultiplier + ")";
+            }
+            else
+            {
+                passiveIncomeText.text = "Passive Income: " + passiveIncome + "/s";
+            }
         }
     }
 }

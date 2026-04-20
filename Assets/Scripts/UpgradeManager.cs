@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class UpgradeManager : MonoBehaviour
 {
-    // Passive Income Units
     public int gruntCost = 10;
     public int eliteCost = 100;
     public int generalCost = 1000;
@@ -14,24 +13,30 @@ public class UpgradeManager : MonoBehaviour
     public int generalIncome = 100;
     public int warlordIncome = 1000;
 
-    // Owned Counts
     public int gruntOwned = 0;
     public int eliteOwned = 0;
     public int generalOwned = 0;
     public int warlordOwned = 0;
 
-    // Shot Reward Upgrade
     public int shotRewardUpgradeCost = 15;
     public int shotRewardGain = 1;
 
-    // Button Text References
+    public int dualTargetUpgradeCost = 250;
+    public int goldenTargetUpgradeCost = 500;
+    private bool dualTargetUnlocked = false;
+    private bool goldenTargetUnlocked = false;
+
+    public AudioClip upgradeSound;
+    private AudioSource audioSource;
+
     public TextMeshProUGUI gruntButtonText;
     public TextMeshProUGUI eliteButtonText;
     public TextMeshProUGUI generalButtonText;
     public TextMeshProUGUI warlordButtonText;
     public TextMeshProUGUI shotRewardButtonText;
+    public TextMeshProUGUI dualTargetButtonText;
+    public TextMeshProUGUI goldenTargetButtonText;
 
-    // Owned Count Text References
     public TextMeshProUGUI gruntCountText;
     public TextMeshProUGUI eliteCountText;
     public TextMeshProUGUI generalCountText;
@@ -39,7 +44,16 @@ public class UpgradeManager : MonoBehaviour
 
     private void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         UpdateAllUI();
+    }
+
+    private void PlayUpgradeSound()
+    {
+        if (audioSource != null && upgradeSound != null)
+        {
+            audioSource.PlayOneShot(upgradeSound);
+        }
     }
 
     private void UpdateAllUI()
@@ -49,6 +63,8 @@ public class UpgradeManager : MonoBehaviour
         UpdateGeneralButtonText();
         UpdateWarlordButtonText();
         UpdateShotRewardButtonText();
+        UpdateDualTargetButtonText();
+        UpdateGoldenTargetButtonText();
 
         UpdateGruntCountText();
         UpdateEliteCountText();
@@ -106,6 +122,7 @@ public class UpgradeManager : MonoBehaviour
             GameManager.Instance.AddPassiveIncome(income);
             ownedCount += 1;
             cost = GetNextCost(cost);
+            PlayUpgradeSound();
             Debug.Log(debugMessage);
             return true;
         }
@@ -130,7 +147,50 @@ public class UpgradeManager : MonoBehaviour
             GameManager.Instance.IncreaseShotReward(shotRewardGain);
             shotRewardUpgradeCost = GetNextCost(shotRewardUpgradeCost);
             UpdateShotRewardButtonText();
+            PlayUpgradeSound();
             Debug.Log("Bought Shot Reward Upgrade");
+        }
+        else
+        {
+            Debug.Log("Not enough money");
+        }
+    }
+
+    public void BuyDualTargetUpgrade()
+    {
+        if (dualTargetUnlocked) return;
+        if (GameManager.Instance == null || TargetSpawner.Instance == null) return;
+
+        bool success = GameManager.Instance.SpendMoney(dualTargetUpgradeCost);
+
+        if (success)
+        {
+            dualTargetUnlocked = true;
+            TargetSpawner.Instance.UnlockDualTarget();
+            UpdateDualTargetButtonText();
+            PlayUpgradeSound();
+            Debug.Log("Bought Dual Target Upgrade");
+        }
+        else
+        {
+            Debug.Log("Not enough money");
+        }
+    }
+
+    public void BuyGoldenTargetUpgrade()
+    {
+        if (goldenTargetUnlocked) return;
+        if (GameManager.Instance == null || TargetSpawner.Instance == null) return;
+
+        bool success = GameManager.Instance.SpendMoney(goldenTargetUpgradeCost);
+
+        if (success)
+        {
+            goldenTargetUnlocked = true;
+            TargetSpawner.Instance.UnlockGoldenTarget();
+            UpdateGoldenTargetButtonText();
+            PlayUpgradeSound();
+            Debug.Log("Bought Golden Target Upgrade");
         }
         else
         {
@@ -198,6 +258,26 @@ public class UpgradeManager : MonoBehaviour
         if (shotRewardButtonText != null)
         {
             shotRewardButtonText.text = "Damage Upgrade ($" + FormatCost(shotRewardUpgradeCost) + ")";
+        }
+    }
+
+    private void UpdateDualTargetButtonText()
+    {
+        if (dualTargetButtonText != null)
+        {
+            dualTargetButtonText.text = dualTargetUnlocked
+                ? "Dual Target (Owned)"
+                : "Dual Target ($" + FormatCost(dualTargetUpgradeCost) + ")";
+        }
+    }
+
+    private void UpdateGoldenTargetButtonText()
+    {
+        if (goldenTargetButtonText != null)
+        {
+            goldenTargetButtonText.text = goldenTargetUnlocked
+                ? "Golden Target (Owned)"
+                : "Golden Target ($" + FormatCost(goldenTargetUpgradeCost) + ")";
         }
     }
 
