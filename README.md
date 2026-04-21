@@ -59,7 +59,10 @@ Assets/
 ## Team Members
 
 - Yan Tong  
-- (Add names below while you edit it)
+- Meena Hall
+- Ryan Sanders
+- Izayah Tubigon
+- Kumi Weilbacher
 
 ---
 
